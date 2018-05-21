@@ -2,6 +2,7 @@ require 'Oystercard'
 
 describe Oystercard do
 	let(:entry_station) { double :entry_station}
+	let(:exit_station) { double :exit_station}
 	describe 'responds to methods' do
 		it 'responds to the method balance' do
 			expect(subject).to respond_to(:balance)
@@ -10,13 +11,13 @@ describe Oystercard do
 			expect(subject).to respond_to(:topup).with(1).argument
 		end
 		it 'responds to touching in' do
-			expect(subject).to respond_to(:touch_in)
+			expect(subject).to respond_to(:touch_in).with(1).argument
 		end
 		it 'responds to being on journey' do
 			expect(subject).to respond_to(:in_journey?)
 		end
 		it 'responds to being touched out' do
-			expect(subject).to respond_to(:touch_out)
+			expect(subject).to respond_to(:touch_out).with(1).argument
 		end
 	end
 
@@ -43,7 +44,7 @@ describe Oystercard do
 		it 'records the start of journey' do
 			subject.topup(1)
 			subject.touch_in(entry_station)
-			subject.touch_out
+			subject.touch_out(nil)
 			expect{ subject.touch_in(entry_station) }.to raise_error "Insufficient balance"
 		end
 
@@ -66,7 +67,7 @@ describe Oystercard do
 		it 'records the end of the journey' do
 			subject.topup(2)
 			subject.touch_in(entry_station)
-			expect{ subject.touch_out }.to change{ subject.balance }.by(-Oystercard::FARE)
+			expect{ subject.touch_out(nil) }.to change{ subject.balance }.by(-Oystercard::FARE)
 
 			expect(subject.in_journey?).to eq false
 		end
@@ -74,9 +75,36 @@ describe Oystercard do
 		it 'removes entry_station' do
 			subject.topup(2)
 			subject.touch_in(entry_station)
-			subject.touch_out
+			subject.touch_out(nil)
 			expect(subject.entry_station).to eq nil
 		end
+	end
+
+	describe 'list of journeys' do
+		it 'lists entry and exit stations' do
+			subject.topup(3)
+			expect(subject.journey_history).to eq []
+			subject.touch_in(entry_station)
+			expect(subject.journey_history.last[:entering_station]).to be entry_station 
+			subject.touch_out(exit_station)
+			expect(subject.journey_history.last[:exit_station]).to eq exit_station 
+			subject.topup(3)
+			subject.touch_in(entry_station)
+			expect(subject.journey_history.last[:entering_station]).to be entry_station 
+			subject.touch_out(exit_station)
+			expect(subject.journey_history.last[:exit_station]).to eq exit_station 
+			subject.topup(3)
+			subject.touch_in(entry_station)
+			expect(subject.journey_history.last[:entering_station]).to be entry_station 
+			subject.touch_out(exit_station)
+			expect(subject.journey_history.last[:exit_station]).to eq exit_station 
+			subject.topup(3)
+			subject.touch_in(entry_station)
+			expect(subject.journey_history.last[:entering_station]).to be entry_station 
+			subject.touch_out(exit_station)
+			expect(subject.journey_history.last[:exit_station]).to eq exit_station 
+		end
+
 	end
 
 

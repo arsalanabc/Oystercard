@@ -1,7 +1,7 @@
 require 'Oystercard' 
 
 describe Oystercard do
-
+	let(:entry_station) { double :entry_station}
 	describe 'responds to methods' do
 		it 'responds to the method balance' do
 			expect(subject).to respond_to(:balance)
@@ -42,17 +42,22 @@ describe Oystercard do
 	describe '#touch_in' do
 		it 'records the start of journey' do
 			subject.topup(1)
-			subject.touch_in
-			expect(subject.status).to eq true
+			subject.touch_in(entry_station)
 			subject.touch_out
-			expect{ subject.touch_in }.to raise_error "Insufficient balance"
+			expect{ subject.touch_in(entry_station) }.to raise_error "Insufficient balance"
+		end
+
+		it 'holds entry_station' do
+			subject.topup(2)
+			subject.touch_in(entry_station)
+			expect(subject.entry_station).to eq entry_station
 		end
 	end
 
 	describe '#in_journey' do
 		it 'records the journey' do
 			subject.topup(1)
-			subject.touch_in
+			subject.touch_in(entry_station)
 			expect(subject.in_journey?).to eq true
 		end
 	end
@@ -60,10 +65,17 @@ describe Oystercard do
 	describe '#touch_out' do
 		it 'records the end of the journey' do
 			subject.topup(2)
-			subject.touch_in
+			subject.touch_in(entry_station)
 			expect{ subject.touch_out }.to change{ subject.balance }.by(-Oystercard::FARE)
 
-			expect(subject.status).to eq false
+			expect(subject.in_journey?).to eq false
+		end
+
+		it 'removes entry_station' do
+			subject.topup(2)
+			subject.touch_in(entry_station)
+			subject.touch_out
+			expect(subject.entry_station).to eq nil
 		end
 	end
 

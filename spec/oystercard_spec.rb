@@ -9,6 +9,9 @@ describe Oystercard do
 		it 'responds to the topup balance' do
 			expect(subject).to respond_to(:topup).with(1).argument
 		end
+		it 'responds to the topup balance' do
+			expect(subject).to respond_to(:deduct).with(1).argument
+		end
 	end
 
 	describe '#balance' do 
@@ -27,6 +30,14 @@ describe Oystercard do
 			b = Oystercard.new
 			b.topup(90)
 			expect { b.topup(1) }.to raise_error "Cannot top up: maximum balance of £#{ Oystercard::MAXIMUM_BALANCE } reached"
+		end
+	end
+
+	describe '#deduct' do
+		it 'deducts balance for fare' do 
+			value = 22
+			expect{ subject.deduct(value) }.to change{ subject.balance }.by(-value)
+
 		end
 	end
 

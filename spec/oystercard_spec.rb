@@ -52,13 +52,17 @@ describe Oystercard do
 
 	describe '#touch_in' do
 		it 'records the start of journey' do
+			subject.topup(1)
 			subject.touch_in
-			expect(subject.status).to eq "Touched in"
+			expect(subject.status).to eq true
+
+			expect{ subject.touch_in }.to raise_error "Insufficient balance"
 		end
 	end
 
 	describe '#in_journey' do
 		it 'records the journey' do
+			subject.topup(1)
 			subject.touch_in
 			expect(subject.in_journey?).to eq true
 		end
@@ -66,9 +70,10 @@ describe Oystercard do
 
 	describe '#touch_out' do
 		it 'records the end of the journey' do
+			subject.topup(2)
 			subject.touch_in
 			subject.touch_out
-			expect(subject.status).to eq "Touched out"
+			expect(subject.status).to eq false
 		end
 	end
 

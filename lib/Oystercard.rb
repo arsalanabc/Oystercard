@@ -16,14 +16,8 @@ class Oystercard
 		@balance += amount
 	end
 
-	def deduct(amount)
-		#fail "Cannot top up: maximum balance of £#{MAXIMUM_BALANCE} reached" if maximum?(amount)
-		@balance -= amount
-	end
-
 	def touch_in
 		fail "Insufficient balance" unless sufficient_balance?
-		deduct(FARE)
 		@status = true
 	end
 
@@ -32,10 +26,16 @@ class Oystercard
 	end
 
 	def touch_out
+		deduct(FARE)
 		@status = false
 	end
 
 	private
+
+	def deduct(amount)
+		#fail "Cannot top up: maximum balance of £#{MAXIMUM_BALANCE} reached" if maximum?(amount)
+		@balance -= amount
+	end
 
 	def maximum?(amount)
 		@balance + amount > MAXIMUM_BALANCE

@@ -9,9 +9,6 @@ describe Oystercard do
 		it 'responds to the topup balance' do
 			expect(subject).to respond_to(:topup).with(1).argument
 		end
-		it 'responds to the topup balance' do
-			expect(subject).to respond_to(:deduct).with(1).argument
-		end
 		it 'responds to touching in' do
 			expect(subject).to respond_to(:touch_in)
 		end
@@ -42,20 +39,12 @@ describe Oystercard do
 		end
 	end
 
-	describe '#deduct' do
-		it 'deducts balance for fare' do 
-			value = 22
-			expect{ subject.deduct(value) }.to change{ subject.balance }.by(-value)
-
-		end
-	end
-
 	describe '#touch_in' do
 		it 'records the start of journey' do
 			subject.topup(1)
 			subject.touch_in
 			expect(subject.status).to eq true
-
+			subject.touch_out
 			expect{ subject.touch_in }.to raise_error "Insufficient balance"
 		end
 	end
@@ -72,7 +61,8 @@ describe Oystercard do
 		it 'records the end of the journey' do
 			subject.topup(2)
 			subject.touch_in
-			subject.touch_out
+			expect{ subject.touch_out }.to change{ subject.balance }.by(-Oystercard::FARE)
+
 			expect(subject.status).to eq false
 		end
 	end

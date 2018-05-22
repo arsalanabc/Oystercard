@@ -51,7 +51,7 @@ describe Oystercard do
 		it 'holds entry_station' do
 			subject.topup(2)
 			subject.touch_in(entry_station)
-			expect(subject.entry_station).to eq entry_station
+			expect(subject.journey_history.last[:entering_station]).to be entry_station 
 		end
 	end
 

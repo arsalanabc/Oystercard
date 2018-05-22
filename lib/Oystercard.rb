@@ -8,7 +8,6 @@ class Oystercard
 
 	def initialize
 		@balance = DEFAULT_BALANCE
-		@entry_station = nil
 		@journey_history = []
 
 	end
@@ -20,18 +19,16 @@ class Oystercard
 
 	def touch_in(entry_station)
 		fail "Insufficient balance" unless sufficient_balance?
-		@entry_station = entry_station
 		journey = {entering_station: entry_station}
 		journey_history << journey
 	end
 
 	def in_journey?
-		!@entry_station.nil?
+		!journey_history.last.key?(:exit_station)
 	end
 
 	def touch_out(exit_station)
 		deduct(FARE)
-		@entry_station = nil
 		journey_history.last[:exit_station] = exit_station
 	end
 

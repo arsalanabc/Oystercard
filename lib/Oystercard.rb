@@ -4,11 +4,13 @@ class Oystercard
 	MAXIMUM_BALANCE = 90
 	FARE = 1
 
-	attr_reader :balance, :entry_station, :journey_history
+	attr_reader :balance, :entry_station, :journey_history, :local_journey
 
-	def initialize
+	def initialize(local_journey: Journey)
 		@balance = DEFAULT_BALANCE
 		@journey_history = []
+		@local_journey = Journey
+
 
 	end
 
@@ -18,18 +20,18 @@ class Oystercard
 	end
 
 	def touch_in(entry_station)
-		fail "Insufficient balance" unless sufficient_balance?
-		journey = {entering_station: entry_station}
+		 fail "Insufficient balance" unless sufficient_balance?
+		journey = local_journey.new(entry_station)
 		journey_history << journey
 	end
 
 	def in_journey?
-		!journey_history.last.key?(:exit_station)
+		!journey_history.last.complete?
 	end
 
 	def touch_out(exit_station)
 		deduct(FARE)
-		journey_history.last[:exit_station] = exit_station
+		journey_history.last.end(exit_station)
 	end
 
 	private

@@ -5,27 +5,34 @@ describe Journeylog do
 	let (:d_start_station) {double :station}
 	let (:d_exit_station) {double :station}
 	let (:d_card) {double :Oystercard}
-
+	subject { described_class.new(d_journey_class)}
 	
 	
 	
 
 	it 'holds a journey' do
 		allow(d_journey_class).to receive(:new).and_return(d_journey)
-		jl = Journeylog.new(d_journey_class)
-		expect(jl.log) == []
+		
+		expect(subject.log) == []
 	end
 
 	it '#start' do
 		allow(d_journey_class).to receive(:new).and_return(d_journey)
-		allow(d_journey).to receive(:start).and_return(nil)
-		allow(d_journey).to receive(:start_station).and_return(d_start_station)
+		allow(d_journey).to receive(:start).with(d_start_station).and_return(nil)
+
 		
-		jl = Journeylog.new(d_journey_class)
-		jl.start(d_start_station)
-		expect(jl.log.last.start_station).to eq d_start_station
+	
+		subject.start(d_start_station)
+
+		#expect(subject.log).to eq d_start_station
+
+		 p subject.log
 		
-		expect(jl.log.last).to eq d_journey
+		expect(subject.log).to include(d_journey)
+	end
+
+	xit "#finish" do
+
 	end
 
 

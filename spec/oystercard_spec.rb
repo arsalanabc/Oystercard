@@ -16,9 +16,7 @@ describe Oystercard do
 		it 'responds to touching in' do
 			expect(subject).to respond_to(:touch_in).with(1).argument
 		end
-		it 'responds to being on journey' do
-			expect(subject).to respond_to(:in_journey?)
-		end
+		
 		it 'responds to being touched out' do
 			expect(subject).to respond_to(:touch_out).with(1).argument
 		end
@@ -53,31 +51,27 @@ describe Oystercard do
 
 		it 'holds entry_station in journey' do
 			allow(journey).to receive(:start_station).and_return(entry_station)
+			allow(journey).to receive(:new).and_return(nil)
 			subject.topup(2)
 			subject.touch_in(entry_station)
 			expect(subject.journey_history.last.start_station).to be entry_station 
 		end
 	end
 
-	describe '#in_journey' do
-		it 'records the journey' do
-			subject.topup(1)
-			subject.touch_in(entry_station)
-			
-			expect(subject.in_journey?).to eq true 
-		end
-	end
 
 	describe '#touch_out' do
 		it 'records the end of the journey' do
 			allow(journey).to receive(:end)
-			allow(journey).to receive(:complete?).and_return(false)
+			allow(journey).to receive(:complete?).and_return(true)
+			allow(journey).to receive(:fare).and_return(1)
+			os = Oystercard.new
+			
 
-			subject.topup(2)
-			subject.touch_in(entry_station)
-			expect{ subject.touch_out(exit_station) }.to change{ subject.balance }.by(-Oystercard::FARE)
+			os.topup(2)
+			os.touch_in(entry_station)
+			expect{ os.touch_out(exit_station) }.to change{ os.balance }.by(-1)
 
-			expect(subject.in_journey?).to eq false
+			expect(journey.complete?).to eq true
 		end
 
 		it 'removes entry_station' do
@@ -90,7 +84,7 @@ describe Oystercard do
 
 	describe 'list of journeys' do
 		it 'lists entry and exit stations' do
-			subject.topup(3)
+			subject.topup(30)
 			expect(subject.journey_history).to eq []
 			subject.touch_in(entry_station)
 			expect(subject.journey_history.last.start_station).to be entry_station 

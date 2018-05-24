@@ -6,10 +6,10 @@ class Oystercard
 
 	attr_reader :balance, :entry_station, :journey_history, :local_journey
 
-	def initialize(local_journey: Journey)
+	def initialize
 		@balance = DEFAULT_BALANCE
 		@journey_history = []
-		@local_journey = Journey
+		
 
 
 	end
@@ -21,17 +21,16 @@ class Oystercard
 
 	def touch_in(entry_station)
 		 fail "Insufficient balance" unless sufficient_balance?
-		journey = local_journey.new(entry_station)
-		journey_history << journey
-	end
+		 j = Journey.new
+		 j.start(entry_station)
+		journey_history << j
 
-	def in_journey?
-		!journey_history.last.complete?
+		 
 	end
 
 	def touch_out(exit_station)
-		deduct(FARE)
 		journey_history.last.end(exit_station)
+		deduct(journey_history.last.fare)
 	end
 
 	private

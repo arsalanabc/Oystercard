@@ -11,10 +11,19 @@ class Journeylog
 		
 		j = @journey_class.new
 		j.start(station)
-		@log.push(j)
+		@log << j
 	
 	end
 
+	def finish(ext_station)
+		temp = current_journey?
+		temp.end(ext_station)
+		@log << temp
+	end
+
+	def journeys
+		@log
+	end
 	private
 
 	def current_journey?
@@ -25,9 +34,3 @@ class Journeylog
 
 	end
 end      
-
- require './lib/Journey'
- require './lib/Station'
-# t = Journeylog.new(Journey)
-# s = Station.new("bank", 1)
-# # t.start(s)

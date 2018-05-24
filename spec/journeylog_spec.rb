@@ -31,8 +31,23 @@ describe Journeylog do
 		expect(subject.log).to include(d_journey)
 	end
 
-	xit "#finish" do
+	it "#finish" do
+		allow(d_journey_class).to receive(:new).and_return(d_journey)
+		allow(d_journey).to receive(:start).with(d_start_station).and_return(nil)
+		allow(d_journey).to receive(:end).with(d_exit_station).and_return(nil)
 
+		allow(d_journey).to receive(:complete?).and_return(true)
+
+		subject.start(d_start_station)
+
+		subject.finish(d_exit_station)
+
+		expect(subject.log).to include(d_journey)
+
+	end
+
+	it "#journeys" do
+		expect(subject.journeys).to be_empty
 	end
 
 

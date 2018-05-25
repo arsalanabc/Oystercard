@@ -4,6 +4,10 @@ describe Oystercard do
 	let(:entry_station) { double :station}
 	let(:exit_station) { double :station}
 	let(:journey) { double :journey }
+	let(:journey_class) { double :journey_class }
+	let(:d_journeylog_class) { double :Journeylog_class }
+	let(:d_journeylog) { double :journeylog }
+
 
 
 	describe 'responds to methods' do
@@ -49,13 +53,6 @@ describe Oystercard do
 			expect{ subject.touch_in(journey) }.to raise_error "Insufficient balance"
 		end
 
-		it 'holds entry_station in journey' do
-			allow(journey).to receive(:start_station).and_return(entry_station)
-			allow(journey).to receive(:new).and_return(nil)
-			subject.topup(2)
-			subject.touch_in(entry_station)
-			expect(subject.journey_history.last.start_station).to be entry_station 
-		end
 	end
 
 
@@ -82,32 +79,67 @@ describe Oystercard do
 		end
 	end
 
-	describe 'list of journeys' do
-		it 'lists entry and exit stations' do
-			subject.topup(30)
-			expect(subject.journey_history).to eq []
-			subject.touch_in(entry_station)
-			expect(subject.journey_history.last.start_station).to be entry_station 
-			subject.touch_out(exit_station)
-			expect(subject.journey_history.last.exit_station).to eq exit_station 
-			subject.topup(3)
-			subject.touch_in(entry_station)
-			expect(subject.journey_history.last.start_station).to be entry_station 
-			subject.touch_out(exit_station)
-			expect(subject.journey_history.last.exit_station).to eq exit_station 
-			subject.topup(3)
-			subject.touch_in(entry_station)
-			expect(subject.journey_history.last.start_station).to be entry_station 
-			subject.touch_out(exit_station)
-			expect(subject.journey_history.last.exit_station).to eq exit_station 
-			subject.topup(3)
-			subject.touch_in(entry_station)
-			expect(subject.journey_history.last.start_station).to be entry_station 
-			subject.touch_out(exit_station)
-			expect(subject.journey_history.last.exit_station).to eq exit_station 
+	context 'adding journeylog to oystercard' do
+		o_card = nil
+		before 'initialize' do
+			allow(d_journeylog_class).to receive(:new).and_return(d_journeylog)
+			allow(d_journeylog).to receive(:start).with(entry_station)
+			allow(d_journeylog).to receive(:finish).with(exit_station)
+			allow(d_journeylog).to receive(:log).with(exit_station)
+
+		allow(d_journeylog).to receive(:fare).and_return(Journey::MIN_FARE)
+
+			
+			o_card = Oystercard.new(d_journeylog)
+			o_card.topup(30)
 		end
 
+		it 'adds journeylog' do			
+			expect(o_card.journeylog).to eq d_journeylog
+		end
+
+		it 'starts a journey with journeylog' do
+			
+			
+			expect(d_journeylog).to receive(:start)
+
+			o_card.touch_in(entry_station)
+
+
+		end
+
+		it 'ends a journey with journeylog' do
+
+			
+			o_card.touch_in(entry_station)
+			
+			expect(d_journeylog).to receive(:finish)
+
+			o_card.touch_out(exit_station)
+
+
+		end
 	end
 
 
+
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
